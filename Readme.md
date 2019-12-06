@@ -14,23 +14,27 @@ It is written in Go.
 
 ## Config file
 
-YAML syntax is used, please ensure that your pad your sections with **2 or 4 spaces, not tabs**. 
+YAML syntax is used, please ensure that your pad your sections with **2 or 4 spaces, not tabs**.
 File name is hard-coded, `breath.yml`. **It is required to create config file manually.**
 
 Here is an example.
 
 ```yml
-version: 1
+version: "1"
 target:
   name: tun0
   gateway: 10.8.0.1
-resolver:
+sources:
+  - interval: 5m
+    domains:
+      - google.com
+      - google.co.uk
+  - interval: 48h  #NOTE: "days" not supported, specify hours (72h instead of 3d)
+    domains:
+      - google.fr
+default_resolver:
   nameservers: [ 8.8.8.8, 8.8.4.4 ]
-  on-fail: hold
-domains:
-  - google.com
-  - google.co.uk
-  - google.fr
+  on_fail: hold # hold / drop
 ```
 
 ## How to run
@@ -43,10 +47,10 @@ Run this on VPN client host. Added routes are atuomatically removed if VPN clien
 2. Inside cloned directory, do `docker build -t vpn-breath .`
 3. Write a config file (see above) and save it as **`breath.yml`**
 
-Create persistent container that will do the job: 
+Create persistent container that will do the job:
 ```sh
 docker run -d \
-  --name vpn-breath \
+  --name breath \
   -v $(pwd)/breath.yml:/home/vpn-breath/app/breath.yml \
   --restart unless-stopped \
   --cap_add NET_ADMIN
@@ -62,6 +66,9 @@ docker run -d \
 4. Build utility with command: `make build`
 4. To start vpn-breath worker use command:
 
-`/home/ubuntu/vpn-breath/bin/vpn-breath`
+`/home/ubuntu/vpn-breath/bin/breath`
 
-TODO: systemd daemon mode support for without-docker rolling
+TODO:
+
+- systemd daemon mode support for without-docker rolling (+logging)
+- support for `auto` interval to adapt to the NS SOA record expiry from DNS responses in a group
