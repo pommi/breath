@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+
+  breath_dev:
+    build:
+      context: ./
+    image: vpn-breath
+    volumes:
+        - ./:/home/breath/app
+    entrypoint: bash init-start.sh
+    restart: on-failure

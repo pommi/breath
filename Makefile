@@ -1,6 +1,6 @@
 
 export PACKAGE := $(abspath .)
-export OUTDIR := $(abspath ./bin)
+export OUTDIR := $(abspath ../bin)
 
 export GOBIN := ${OUTDIR}:${GOPATH}/bin:${GOBIN}
 export PATH := ${PATH}:${GOBIN}

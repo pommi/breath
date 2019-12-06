@@ -44,7 +44,7 @@ Run this on VPN client host. Added routes are atuomatically removed if VPN clien
 ### With Docker
 
 1. Clone the repo
-2. Inside cloned directory, do `docker build -t vpn-breath .`
+2. Inside cloned directory, do `docker-compose build`
 3. Write a config file (see above) and save it as **`breath.yml`**
 
 Create persistent container that will do the job:
@@ -66,7 +66,7 @@ docker run -d \
 4. Build utility with command: `make build`
 4. To start vpn-breath worker use command:
 
-`/home/ubuntu/vpn-breath/bin/breath`
+`/home/ubuntu/bin/breath`
 
 TODO:
 
