@@ -6,7 +6,7 @@ import (
   "time"
 )
 
-func (group * Group) setInterval() {
+func (group * Group) init() {
 
   sources := group.config.Sources[group.index]
 
@@ -17,13 +17,10 @@ func (group * Group) setInterval() {
       log.Fatal().Msgf("sources.%d: error reading update interval string \"%s\": %v", group.index, sources.Interval, err)
     }
     group.interval = duration.Get()
+  } else {
+    log.Info().Msgf("sources.%d interval is not set, using 1 HOUR (\"1h\") as the default")
+    group.interval = time.Hour
   }
-}
-
-func (group * Group) resetInterval(state *State, d time.Duration) {
-  state.tickers[group.index].Stop()
-  state.tickers[group.index] = time.NewTicker(d)
-  group.interval = d
 }
 
 func (group * Group) Update() {

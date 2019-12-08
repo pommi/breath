@@ -3,6 +3,7 @@ package main
 import (
   "fmt"
   "errors"
+  "strings"
   "gopkg.in/yaml.v2"
   "github.com/rs/zerolog/log"
 )
@@ -43,6 +44,13 @@ func (config * Config) Expand() *State {
     log.Fatal().Msg("default_resolver must be specified")
   }
 
+  if len(config.Target.Name) == 0 || strings.Contains(config.Target.Name, " ") {
+    log.Fatal().Msgf("Invalid target.name (interface/link) \"%s\"", config.Target.Name)
+  }
+  if len(config.Target.Gateway) == 0 || !strings.Contains(config.Target.Gateway, "/") {
+    log.Fatal().Msgf("Invalid target.gateway (CIDR) \"%s\"", config.Target.Gateway)
+  }
+
   err := config.DefaultResolver.init()
   if err != nil {
     log.Fatal().Msgf("default_resolver init fail: %v", err)
@@ -61,7 +69,7 @@ func (config * Config) Expand() *State {
     groups[i].index = i
     groups[i].config = config
 
-    groups[i].setInterval()
+    groups[i].init()
 
     groups[i].resolver = config.Sources[i].Resolver
     if groups[i].resolver == nil {
@@ -69,10 +77,15 @@ func (config * Config) Expand() *State {
     }
 
   }
-  return &State{
+
+  state := &State{
     groups:   groups,
     tickers:  nil,
     master:   make(chan *Group),
     quit:     make(chan struct{}),
   }
+
+  state.routeHelp.Reset(config.Target.Name, config.Target.Gateway)
+
+  return state
 }

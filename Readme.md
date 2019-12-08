@@ -34,7 +34,7 @@ sources:
       - google.fr
 default_resolver:
   nameservers: [ 8.8.8.8, 8.8.4.4 ]
-  on_fail: hold # hold / drop
+  on_failure: hold # hold / drop
 ```
 
 ## Running
@@ -71,7 +71,7 @@ docker run -d \
 # How it works
 
 Route management and interface state tracking is implemented using
-[vishvananda/netlink](github.com/vishvananda/netlink) package.
+[vishvananda/netlink](https://github.com/vishvananda/netlink) package.
 
 When the breath starts, it waits for interface activation (say, `tun0`),
 and then resolves all domain names. For every resolved IP address, it adds a route

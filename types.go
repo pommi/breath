@@ -2,6 +2,8 @@ package main
 
 import (
   "time"
+  "net"
+  "github.com/vishvananda/netlink"
 )
 
 type ConfigChecker struct {
@@ -20,13 +22,17 @@ type Config struct {
   } `yaml:",flow"`
 }
 
-type Resolver struct {
-  NameServers []string `yaml:"nameservers,flow"`
-  ActionOnFail string `yaml:"on_fail"`
+type FAIL_ACTION string
 
-  state struct {
-    onFail_HOLD bool
-  } `yaml:"-"`
+const (
+  ON_FAIL_HOLD FAIL_ACTION = "hold"
+  ON_FAIL_DROP FAIL_ACTION = "drop"
+)
+
+type Resolver struct {
+  NameServers   []string      `yaml:"nameservers,flow"`
+  NameServersIP []net.IP      `yaml:"-"`
+  ActionOnFail  FAIL_ACTION   `yaml:"on_failure"`
 }
 
 type State struct {
@@ -34,6 +40,7 @@ type State struct {
   tickers     []*time.Ticker// timeouts/intervals triggering updates for master channel
   master      chan *Group   // outer interface to listen for updates
   quit        chan struct{} // send stop signal and interrupt background loop
+  routeHelp   RouteHelper
 }
 
 type Group struct {
@@ -43,6 +50,22 @@ type Group struct {
   resolver * Resolver
 }
 
-// type RouteHelper struct {
-//
-// }
+type routeOwner interface{}
+
+type link struct {
+  ptr   netlink.Link
+  name  string
+}
+
+type ipstr string
+type routeData struct {
+  ip      net.IP
+  owners  map[routeOwner]int
+}
+type routesMap map[ipstr]routeData
+
+type RouteHelper struct {
+  link          link          // target device
+  gw            *netlink.Addr // target gateway
+  routes        routesMap     // routes stored as: ip => owners
+}
