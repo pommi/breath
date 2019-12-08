@@ -21,7 +21,8 @@ func (group * Group) setInterval() {
 }
 
 func (group * Group) resetInterval(state *State, d time.Duration) {
-  state.timers[group.index].Reset(d)
+  state.tickers[group.index].Stop()
+  state.tickers[group.index] = time.NewTicker(d)
   group.interval = d
 }
 

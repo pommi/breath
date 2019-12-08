@@ -1,6 +1,7 @@
 package main
 
 import (
+  _ "github.com/vishvananda/netlink"
   "errors"
   "fmt"
 )

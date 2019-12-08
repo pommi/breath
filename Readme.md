@@ -37,9 +37,9 @@ default_resolver:
   on_fail: hold # hold / drop
 ```
 
-## How to run
+## Running
 
-Run this on VPN client host. Added routes are atuomatically removed if VPN client is disconnected.
+Run this on VPN client host. Added routes are automatically removed if VPN client is disconnected.
 
 ### With Docker
 
@@ -63,12 +63,22 @@ docker run -d \
 1. Clone the repo
 2. Write config, save as **`breath.yml`** inside cloned directory
 3. Install `make` and `go` 1.9+ for your distribution (ensure `go version` prints the version after install)
-4. Build utility with command: `make build`
+4. Build utility with command: `make build` (binary is saved to `../bin`)
 4. To start vpn-breath worker use command:
 
 `/home/ubuntu/bin/breath`
 
-TODO:
+# How it works
+
+Route management and interface state tracking is implemented using
+[vishvananda/netlink](github.com/vishvananda/netlink) package.
+
+When the breath starts, it waits for interface activation (say, `tun0`),
+and then resolves all domain names. For every resolved IP address, it adds a route
+so that system will use redirect traffic to that IP address.
+
+## TODO
 
 - systemd daemon mode support for without-docker rolling (+logging)
 - support for `auto` interval to adapt to the NS SOA record expiry from DNS responses in a group
+- cache initial resolution to bootstrap restarts

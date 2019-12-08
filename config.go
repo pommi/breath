@@ -71,7 +71,8 @@ func (config * Config) Expand() *State {
   }
   return &State{
     groups:   groups,
-    timers:   nil,
+    tickers:  nil,
     master:   make(chan *Group),
+    quit:     make(chan struct{}),
   }
 }

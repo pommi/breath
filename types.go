@@ -31,8 +31,9 @@ type Resolver struct {
 
 type State struct {
   groups      []Group
-  timers      []*time.Timer // timeouts/intervals triggering updates for master channel
+  tickers     []*time.Ticker// timeouts/intervals triggering updates for master channel
   master      chan *Group   // outer interface to listen for updates
+  quit        chan struct{} // send stop signal and interrupt background loop
 }
 
 type Group struct {
@@ -41,3 +42,7 @@ type Group struct {
   interval time.Duration
   resolver * Resolver
 }
+
+// type RouteHelper struct {
+//
+// }
