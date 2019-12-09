@@ -73,5 +73,6 @@ func (resolver * Resolver) Resolve(domain string) ([]net.IP, error) {
   }
 
   return result, err
-
 }
+
+// func (resolver * Resolve)

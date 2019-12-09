@@ -54,13 +54,13 @@ type routeOwner interface{}
 
 type ipstr string
 type routeData struct {
-  ip      net.IP
+  ip      *net.IPNet
   owners  map[routeOwner]int
 }
 type routesMap map[ipstr]routeData
 
 type RouteHelper struct {
   link          netlink.Link  // target device
-  gw            *netlink.Addr // target gateway
+  gw            net.IP       // target gateway
   routes        routesMap     // routes stored as: ip => owners
 }

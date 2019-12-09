@@ -27,19 +27,19 @@ Here is an example.
 ```yml
 version: "1"
 target:
-  name: tun0            # vpn interface
-  gateway: 10.8.0.1/2   # vpn server
+  gateway: 10.8.0.1
+  name: tun0
 sources:
   - interval: 5m
     domains:
       - google.com
       - google.co.uk
-  - interval: 48h  #NOTE: "days" not supported, specify hours (72h instead of 3d)
+  - interval: 48h
     domains:
       - google.fr
 default_resolver:
   nameservers: [ 8.8.8.8, 8.8.4.4 ]
-  on_failure: hold # hold / drop
+  on_failure: hold
 ```
 
 ## Running
