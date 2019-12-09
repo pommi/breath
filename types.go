@@ -52,11 +52,6 @@ type Group struct {
 
 type routeOwner interface{}
 
-type link struct {
-  ptr   netlink.Link
-  name  string
-}
-
 type ipstr string
 type routeData struct {
   ip      net.IP
@@ -65,7 +60,7 @@ type routeData struct {
 type routesMap map[ipstr]routeData
 
 type RouteHelper struct {
-  link          link          // target device
+  link          netlink.Link  // target device
   gw            *netlink.Addr // target gateway
   routes        routesMap     // routes stored as: ip => owners
 }

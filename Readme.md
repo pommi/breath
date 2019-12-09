@@ -1,16 +1,21 @@
-# vpn-breath
+# breath
 
-Resolves domain names and pushes routes to redirect-gateway for resolved IPs only.
-
+Route specific domain names to be selectively redirected to openvpn gateway.
 
 ## How it works
 
-**vpn-breath** continuously resolves configured list of desired domain names
-and pushes routes to client's VPN interface (`tun0`) needed to
-selectively redirect traffic to resolved IP addresses via the VPN gateway
-(server).
+**breath** uses list of configured domain names, resolves them
+and pushes routes for these IP addresses to be redirected via OpenVPN gateway (`tun0`).
 
-It is written in Go.
+It was developed to keep routes up to date with changes in DNS and tested to
+work flawlessly with **openvpn** client mode.
+
+### OS Support
+
+Depends on **netlink** support in the system.
+
+- Linux
+- FreeBSD
 
 ## Config file
 
@@ -22,8 +27,8 @@ Here is an example.
 ```yml
 version: "1"
 target:
-  name: tun0
-  gateway: 10.8.0.1
+  name: tun0            # vpn interface
+  gateway: 10.8.0.1/2   # vpn server
 sources:
   - interval: 5m
     domains:
@@ -51,10 +56,10 @@ Create persistent container that will do the job:
 ```sh
 docker run -d \
   --name breath \
-  -v $(pwd)/breath.yml:/home/vpn-breath/app/breath.yml \
+  -v $(pwd)/breath.yml:/home/breath/app/breath.yml \
   --restart unless-stopped \
   --cap_add NET_ADMIN
-  vpn-breath
+  breath
 ```
 
 
@@ -64,7 +69,7 @@ docker run -d \
 2. Write config, save as **`breath.yml`** inside cloned directory
 3. Install `make` and `go` 1.9+ for your distribution (ensure `go version` prints the version after install)
 4. Build utility with command: `make build` (binary is saved to `../bin`)
-4. To start vpn-breath worker use command:
+4. To start breath worker use command:
 
 `/home/ubuntu/bin/breath`
 

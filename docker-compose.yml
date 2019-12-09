@@ -4,7 +4,7 @@ services:
   breath_dev:
     build:
       context: ./
-    image: vpn-breath
+    image: breath
     volumes:
         - ./:/home/breath/app
     entrypoint: bash init-start.sh

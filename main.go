@@ -29,7 +29,7 @@ func init() {
 }
 
 func main() {
-  log.Info().Msg("vpn-breath starts")
+  log.Info().Msg("breath starts")
 
   state := config.Expand()
 
