@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// LoadConfig parse config file
 func LoadConfig(data []byte, config *Config) error {
 	var (
 		check ConfigChecker
@@ -35,6 +36,7 @@ func LoadConfig(data []byte, config *Config) error {
 	return nil
 }
 
+// Expand Config to State
 func (config *Config) Expand() *State {
 	groups := make([]Group, len(config.Sources))
 	if len(groups) == 0 {
@@ -66,8 +68,8 @@ func (config *Config) Expand() *State {
 		}
 	}
 
-	for i, _ := range groups {
-		groups[i].index = i
+	for i := range groups {
+		groups[i].index = GroupID(i)
 		groups[i].config = config
 
 		groups[i].init()
@@ -86,7 +88,7 @@ func (config *Config) Expand() *State {
 		quit:    make(chan struct{}),
 	}
 
-	state.routeHelp.Reset(config.Target.Name, config.Target.Gateway)
+	state.helper.Reset(config.Target.Name, config.Target.Gateway, config.Target.Metric)
 
 	return state
 }

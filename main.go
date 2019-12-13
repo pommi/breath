@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	CONFIG_FILE_PATH = "breath.yml"
+	// ConfigFilePath default config file name (hard-coded)
+	ConfigFilePath = "breath.yml"
 )
 
 var (
@@ -17,9 +18,9 @@ var (
 )
 
 func init() {
-	data, err := ioutil.ReadFile(CONFIG_FILE_PATH)
+	data, err := ioutil.ReadFile(ConfigFilePath)
 	if err != nil {
-		log.Error().Msgf("Error reading file %s: %v", CONFIG_FILE_PATH, err)
+		log.Error().Msgf("Error reading file %s: %v", ConfigFilePath, err)
 		os.Exit(2)
 	}
 

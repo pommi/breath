@@ -43,7 +43,7 @@ func (group *Group) Update(state *State) {
 		}
 	}
 
-	state.routeHelp.Replace(group, routedIPs)
+	state.helper.Replace(group.index, routedIPs)
 
 	log.Debug().Msgf("Updated sources.%d (%d domains), next update in %s", group.index, len(sources.Domains), durafmt.Parse(group.interval))
 }
