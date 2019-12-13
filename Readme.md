@@ -2,13 +2,15 @@
 
 Route specific domain names to be selectively redirected to openvpn gateway.
 
-## How it works
-
-**breath** uses list of configured domain names, resolves them
+**breath** takes list of domain names as config, resolves them
 and pushes routes for these IP addresses to be redirected via OpenVPN gateway (`tun0`).
 
-It was developed to keep routes up to date with changes in DNS and tested to
+It was developed to keep routes up to date with changes in DNS and is tested to
 work flawlessly with **openvpn** client mode.
+
+### Development status
+
+Ready to use
 
 ### OS Support
 
@@ -19,7 +21,8 @@ Depends on **netlink** support in the system.
 
 ## Config file
 
-YAML syntax is used, please ensure that your pad your sections with **2 or 4 spaces, not tabs**.
+YAML syntax is used for config file.
+
 File name is hard-coded, `breath.yml`. **It is required to create config file manually.**
 
 Here is an example.
@@ -42,10 +45,6 @@ default_resolver:
   on_failure: hold
 ```
 
-## Running
-
-Run this on VPN client host. Added routes are automatically removed if VPN client is disconnected.
-
 ### With Docker
 
 1. Clone the repo
@@ -62,7 +61,6 @@ docker run -d \
   breath
 ```
 
-
 ### Without Docker
 
 1. Clone the repo
@@ -71,19 +69,15 @@ docker run -d \
 4. Build utility with command: `make build` (binary is saved to `../bin`)
 4. To start breath worker use command:
 
-`/home/ubuntu/bin/breath`
+`sudo /home/ubuntu/bin/breath`
 
 # How it works
 
 Route management and interface state tracking is implemented using
 [vishvananda/netlink](https://github.com/vishvananda/netlink) package.
 
-When the breath starts, it waits for interface activation (say, `tun0`),
-and then resolves all domain names. For every resolved IP address, it adds a route
-so that system will use redirect traffic to that IP address.
-
-## TODO
-
-- systemd daemon mode support for without-docker rolling (+logging)
-- support for `auto` interval to adapt to the NS SOA record expiry from DNS responses in a group
-- cache initial resolution to bootstrap restarts
+## TODO List
+- [ ] cache initial resolution to bootstrap restarts
+- [ ] track vpn/link status to remove routes when VPN is not ready
+- [ ] systemd daemon mode support for without-docker (tweak for logging and add sample unit file)
+- [ ] support for `auto` interval

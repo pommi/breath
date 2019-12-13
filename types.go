@@ -1,66 +1,73 @@
 package main
 
 import (
-  "time"
-  "net"
-  "github.com/vishvananda/netlink"
+	"net"
+	"time"
+
+	"github.com/vishvananda/netlink"
 )
 
 type ConfigChecker struct {
-  Version string
+	Version string
 }
 
 type Config struct {
-  DefaultResolver *Resolver `yaml:"default_resolver,flow"`
-  Target struct {
-    Name, Gateway string
-  }
-  Sources []struct {
-    Interval string
-    Domains []string `yaml:",flow"`
-    Resolver *Resolver `yaml:",flow"`
-  } `yaml:",flow"`
+	DefaultResolver *Resolver `yaml:"default_resolver,flow"`
+	Target          struct {
+		Name, Gateway string
+	}
+	Sources []struct {
+		Interval string
+		Domains  []string  `yaml:",flow"`
+		Resolver *Resolver `yaml:",flow"`
+	} `yaml:",flow"`
 }
 
 type FAIL_ACTION string
 
 const (
-  ON_FAIL_HOLD FAIL_ACTION = "hold"
-  ON_FAIL_DROP FAIL_ACTION = "drop"
+	ON_FAIL_HOLD FAIL_ACTION = "hold"
+	ON_FAIL_DROP FAIL_ACTION = "drop"
 )
 
 type Resolver struct {
-  NameServers   []string      `yaml:"nameservers,flow"`
-  NameServersIP []net.IP      `yaml:"-"`
-  ActionOnFail  FAIL_ACTION   `yaml:"on_failure"`
+	NameServers   []string    `yaml:"nameservers,flow"`
+	NameServersIP []net.IP    `yaml:"-"`
+	ActionOnFail  FAIL_ACTION `yaml:"on_failure"`
 }
 
 type State struct {
-  groups      []Group
-  tickers     []*time.Ticker// timeouts/intervals triggering updates for master channel
-  master      chan *Group   // outer interface to listen for updates
-  quit        chan struct{} // send stop signal and interrupt background loop
-  routeHelp   RouteHelper
+	groups    []Group
+	tickers   []*time.Ticker // timeouts/intervals triggering updates for master channel
+	master    chan *Group    // outer interface to listen for updates
+	quit      chan struct{}  // send stop signal and interrupt background loop
+	routeHelp RouteHelper
 }
 
 type Group struct {
-  config * Config
-  index int
-  interval time.Duration
-  resolver * Resolver
+	config   *Config
+	index    int
+	interval time.Duration
+	resolver *Resolver
 }
 
 type routeOwner interface{}
 
 type ipstr string
 type routeData struct {
-  ip      *net.IPNet
-  owners  map[routeOwner]int
+	ip     *net.IPNet
+	owners map[routeOwner]int
 }
 type routesMap map[ipstr]routeData
 
 type RouteHelper struct {
-  link          netlink.Link  // target device
-  gw            net.IP       // target gateway
-  routes        routesMap     // routes stored as: ip => owners
+	link   netlink.Link // target device
+	gw     net.IP       // target gateway
+	routes routesMap    // routes stored as: ip => owners
+}
+
+// Comparable interface requires object to support comparison operation based
+// on value
+type Comparable interface {
+	Equals(Comparable) bool
 }
