@@ -10,14 +10,14 @@ work flawlessly with **openvpn** client mode.
 
 ### Development status
 
-Ready to use
+It works as expected (see TODO List below)
 
 ### OS Support
 
-Depends on **netlink** support in the system.
+Depends on **netlink** socket API support in the system.
 
 - Linux
-- FreeBSD
+- BSD
 
 ## Config file
 
@@ -25,25 +25,29 @@ YAML syntax is used for config file.
 
 File name is hard-coded, `breath.yml`. **It is required to create config file manually.**
 
-Here is an example.
+Here is an example. It will ensure specific domain names are redirected.
 
 ```yml
 version: "1"
+
 target:
-  gateway: 10.8.0.1
   name: tun0
+  gateway: 10.8.0.1
+  metric: 10
+
+default_resolver:
+  nameservers: [ 8.8.8.8, 8.8.4.4 ]
+  on_failure: hold
+
 sources:
   - interval: 5m
     domains:
       - google.com
       - google.co.uk
-  - interval: 48h
-    domains:
       - google.fr
-default_resolver:
-  nameservers: [ 8.8.8.8, 8.8.4.4 ]
-  on_failure: hold
 ```
+
+## Run
 
 ### With Docker
 
@@ -51,32 +55,37 @@ default_resolver:
 2. Inside cloned directory, do `docker-compose build`
 3. Write a config file (see above) and save it as **`breath.yml`**
 
-Create persistent container that will do the job:
+Create and start persistent container that will do the job:
 ```sh
 docker run -d \
   --name breath \
-  -v $(pwd)/breath.yml:/home/breath/app/breath.yml \
+  --net host \
+  --cap-add NET_ADMIN \
+  -v $(pwd)/breath.yml:/root/app/breath.yml \
   --restart unless-stopped \
-  --cap_add NET_ADMIN
   breath
 ```
 
 ### Without Docker
 
-1. Clone the repo
+1. Clone the repo as `/$HOME/breath`
 2. Write config, save as **`breath.yml`** inside cloned directory
 3. Install `make` and `go` 1.9+ for your distribution (ensure `go version` prints the version after install)
-4. Build utility with command: `make build` (binary is saved to `../bin`)
+4. Build utility with command: `make build`. Binary is in `../bin`
 4. To start breath worker use command:
 
-`sudo /home/ubuntu/bin/breath`
+```sh
+sudo /$HOME/bin/breath
+```
 
 # How it works
 
-Route management and interface state tracking is implemented using
-[vishvananda/netlink](https://github.com/vishvananda/netlink) package.
+Route management is done through netlink kernel API implemented by
+[vishvananda/netlink](https://github.com/vishvananda/netlink) Go package.
 
 ## TODO List
+- [x] add and remove routes, auto-update routes with interval
+- [ ] track link status. If link is down, sleep. If link goes up, re-add routes
 - [ ] cache initial resolution to bootstrap restarts
 - [ ] track vpn/link status to remove routes when VPN is not ready
 - [ ] systemd daemon mode support for without-docker (tweak for logging and add sample unit file)

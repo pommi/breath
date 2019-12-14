@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/rs/zerolog/log"
 )
@@ -41,7 +42,7 @@ func main() {
 	defer state.Cleanup()
 
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		for range c {
 			log.Warn().Msg("Interruption signal, finishing")

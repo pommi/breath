@@ -2,15 +2,12 @@ FROM golang:1-stretch
 
 RUN apt install -y make
 
-RUN useradd --create-home --shell /bin/bash breath
-USER breath
+RUN mkdir -p /root/{.cache/go-build,go/bin}
+ENV GOPATH=/root/go
 
-RUN mkdir -p /home/breath/{.cache/go-build,go/bin}
-ENV GOPATH=/home/breath/go
-
-COPY . /home/breath/app
-WORKDIR /home/breath/app
+COPY . /root/app
+WORKDIR /root/app
 
 RUN make build
 
-ENTRYPOINT make run
+ENTRYPOINT ["make", "run"]

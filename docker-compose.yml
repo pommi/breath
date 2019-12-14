@@ -6,7 +6,8 @@ services:
       context: ./
     image: breath
     volumes:
-        - ./breath.yml:/home/breath/app/breath.yml
-    entrypoint: bash init-start.sh
+        - ./breath.yml:/root/app/breath.yml
+    #entrypoint: bash init-start.sh
     restart: on-failure
+    network_mode: host
     cap_add: [ NET_ADMIN ]
