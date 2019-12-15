@@ -78,6 +78,10 @@ docker run -d \
 sudo /$HOME/bin/breath
 ```
 
+# License
+
+BSD 3-Clause License
+
 # How it works
 
 Route management is done through netlink kernel API implemented by
