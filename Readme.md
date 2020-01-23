@@ -91,6 +91,6 @@ Route management is done through netlink kernel API implemented by
 - [x] add and remove routes, auto-update routes with interval
 - [ ] track link status. If link is down, sleep. If link goes up, re-add routes
 - [ ] cache initial resolution to bootstrap restarts
-- [ ] track vpn/link status to remove routes when VPN is not ready
 - [ ] systemd daemon mode support for without-docker (tweak for logging and add sample unit file)
 - [ ] support for `auto` interval
+- [ ] add DNS-over-HTTPs support with force/try mode for resolvers
