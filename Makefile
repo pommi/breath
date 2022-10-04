@@ -1,6 +1,6 @@
 
 export PACKAGE := $(abspath .)
-export OUTDIR := $(abspath ../bin)
+export OUTDIR := $(abspath ./bin)
 
 export GOBIN := ${OUTDIR}:${GOPATH}/bin:${GOBIN}
 export PATH := ${PATH}:${GOBIN}
@@ -14,6 +14,7 @@ export GIT_SSH_COMMAND='ssh -o ControlMaster=no'
 all: build run
 
 build:
+	mkdir -p ${OUTDIR}
 	go get -d .
 	go build -o ${OUTDIR}/${TARGET}
 

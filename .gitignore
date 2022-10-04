@@ -3,3 +3,4 @@
 .cache/
 /.env
 breath.yml
+bin/
