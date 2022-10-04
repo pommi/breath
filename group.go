@@ -37,7 +37,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/crackhd/durafmt"
 	"github.com/rs/zerolog/log"
 )
 
@@ -47,11 +46,11 @@ func (group *Group) init() {
 
 	group.interval = time.Hour
 	if len(sources.Interval) > 0 {
-		duration, err := durafmt.ParseString(sources.Interval)
+		duration, err := time.ParseDuration(sources.Interval)
 		if err != nil {
 			log.Fatal().Msgf("sources.%d: error reading update interval string \"%s\": %v", group.index, sources.Interval, err)
 		}
-		group.interval = duration.Get()
+		group.interval = duration
 	} else {
 		log.Info().Msgf("sources.%d interval is not set, using 1 HOUR (\"1h\") as the default", group.index)
 		group.interval = time.Hour
@@ -78,5 +77,5 @@ func (group *Group) Update(state *State) {
 
 	state.helper.Replace(group.index, routedIPs)
 
-	log.Debug().Msgf("Updated sources.%d (%d domains), next update in %s", group.index, len(sources.Domains), durafmt.Parse(group.interval))
+	log.Debug().Msgf("Updated sources.%d (%d domains), next update in %s", group.index, len(sources.Domains), group.interval)
 }
