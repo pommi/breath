@@ -34,7 +34,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -52,7 +51,7 @@ var (
 )
 
 func init() {
-	data, err := ioutil.ReadFile(ConfigFilePath)
+	data, err := os.ReadFile(ConfigFilePath)
 	if err != nil {
 		log.Error().Msgf("Error reading file %s: %v", ConfigFilePath, err)
 		os.Exit(2)
