@@ -43,29 +43,56 @@ import (
 	_ "github.com/vishvananda/netlink"
 )
 
-func resolve(target string, dns net.IP) ([]net.IP, error) {
-	server := dns.String()
+func resolve(target string, nameserver net.IP) ([]net.IP, error) {
+	for {
+		reply := dnsQuery(target, nameserver)
 
-	c := dns_impl.Client{}
-	m := dns_impl.Msg{}
-	m.SetQuestion(target+".", dns_impl.TypeA)
-	r, _, err := c.Exchange(&m, server+":53")
-	if err != nil {
-		return nil, err
+		if ips := getAnswer(reply); ips != nil {
+			return ips, nil
+		} else if cnameTarget := getCNAME(reply); cnameTarget != "" {
+			return resolve(cnameTarget, nameserver)
+		} else {
+			return nil, fmt.Errorf("Unable to resolve %s to A or CNAME", target)
+		}
+	}
+}
+
+func getAnswer(reply *dns_impl.Msg) []net.IP {
+	var ips []net.IP
+
+	for _, record := range reply.Answer {
+		if record.Header().Rrtype == dns_impl.TypeA {
+			ips = append(ips, record.(*dns_impl.A).A)
+		}
 	}
 
-	results := make([]net.IP, len(r.Answer))
-
-	for i, ans := range r.Answer {
-		Arecord := ans.(*dns_impl.A)
-		results[i] = Arecord.A
+	if len(ips) > 0 {
+		return ips
 	}
 
-	return results, nil
+	return nil
+}
+
+func getCNAME(reply *dns_impl.Msg) string {
+	for _, record := range reply.Answer {
+		if record.Header().Rrtype == dns_impl.TypeCNAME {
+			return record.(*dns_impl.CNAME).Target
+		}
+	}
+
+	return ""
+}
+
+func dnsQuery(name string, server net.IP) *dns_impl.Msg {
+	msg := new(dns_impl.Msg)
+	msg.SetQuestion(name+".", dns_impl.TypeA)
+	c := new(dns_impl.Client)
+	reply, _, _ := c.Exchange(msg, server.String()+":53")
+
+	return reply
 }
 
 func (resolver *Resolver) init() error {
-
 	if len(resolver.ActionOnFail) == 0 {
 		resolver.ActionOnFail = FailActionDROP
 		log.Info().Msgf("When on_failure is not specified, \"%s\" will be effective action.", resolver.ActionOnFail)
@@ -85,11 +112,11 @@ func (resolver *Resolver) init() error {
 			msg := fmt.Sprintf("Nameserver \"%s\" is not valid IP address", dns)
 			return errors.New(msg)
 		}
+
 		resolver.NameServersIP[i] = ip
 	}
 
 	return nil
-
 }
 
 // Resolve to get all domain name A records
@@ -104,7 +131,8 @@ func (resolver *Resolver) Resolve(domain string) ([]net.IP, error) {
 		if err == nil {
 			break
 		}
-		log.Warn().Msgf("Resolution failed using DNS %s domain %s type A: %v (%d/%d)", resolver.NameServers[i], domain, err, i+1, len(resolver.NameServersIP))
+		log.Warn().Msgf("Resolution failed using DNS %s domain %s type A: %v (%d/%d)",
+			resolver.NameServers[i], domain, err, i+1, len(resolver.NameServersIP))
 	}
 
 	return result, err
