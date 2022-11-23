@@ -45,7 +45,11 @@ import (
 
 func resolve(target string, nameserver net.IP) ([]net.IP, error) {
 	for {
-		reply := dnsQuery(target, nameserver)
+		reply, err := dnsQuery(target, nameserver)
+
+		if err != nil {
+			return nil, fmt.Errorf("dnsQuery error for %s: %s", target, err.Error())
+		}
 
 		if ips := getAnswer(reply); ips != nil {
 			return ips, nil
@@ -83,13 +87,13 @@ func getCNAME(reply *dns_impl.Msg) string {
 	return ""
 }
 
-func dnsQuery(name string, server net.IP) *dns_impl.Msg {
+func dnsQuery(name string, server net.IP) (*dns_impl.Msg, error) {
 	msg := new(dns_impl.Msg)
 	msg.SetQuestion(name+".", dns_impl.TypeA)
 	c := new(dns_impl.Client)
-	reply, _, _ := c.Exchange(msg, server.String()+":53")
+	reply, _, err := c.Exchange(msg, server.String()+":53")
 
-	return reply
+	return reply, err
 }
 
 func (resolver *Resolver) init() error {
